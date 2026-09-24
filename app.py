@@ -97,14 +97,20 @@ def build_map(geo, selected, metric_col, metric_label, show_labels):
             props["metric_value"] = 0
             props["passers_by"] = 0
             props["unique_passers_by"] = 0
-            props["date"] = selected["date"].iloc[0] if len(selected) else pd.Timestamp.now()
+            props["date"] = (
+                selected["date"].iloc[0].strftime("%Y-%m-%d")
+                if len(selected) else ""
+            )
             props["time_slice"] = ""
         else:
             props["metric_value"] = float(row["metric_value"])
             props["passers_by"] = float(row["passers_by"])
             props["unique_passers_by"] = float(row["unique_passers_by"])
-            props["date"] = row["date"]
-            props["time_slice"] = row["time_slice"]
+            props["date"] = (
+                row["date"].strftime("%Y-%m-%d")
+                if hasattr(row["date"], "strftime") else str(row["date"])
+            )
+            props["time_slice"] = str(row["time_slice"])
 
         new_feature = dict(feature)
         new_feature["properties"] = props
@@ -282,14 +288,6 @@ with st.sidebar:
     )
 
     st.divider()
-
-    st.markdown("### Dienas režīms")
-    auto_play = st.checkbox(
-        "Animēt stundas",
-        value=False,
-        help="Atverot karti, animācija nav automātiski palaista. "
-             "Izmanto stundu izvēli manuāli vai ieslēdz šo režīmu.",
-    )
 
 # Filter selected hour
 selected = day_df[day_df["time_slice"] == selected_time_slice].copy()
